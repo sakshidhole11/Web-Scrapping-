@@ -1,0 +1,74 @@
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+import csv
+
+# Set up Selenium WebDriver
+driver = webdriver.Chrome()
+
+try:
+    # Navigate to the webpage
+    driver.get('https://informatica-lm.cdl.unimi.it/en/programme')
+
+    # Find the course information elements
+    course_name_element = driver.find_element(By.XPATH, '//div[@class="cdlname"]')
+    courseduration_element = driver.find_element(By.XPATH, '//div[@class="views-field views-field-durata-anni"]//span[@class="field-content"]')
+    courselanguage_element = driver.find_element(By.XPATH, '(//span[@class="field-content"])[6]')
+    courselocation_element = driver.find_element(By.XPATH, '//div[@class="views-field views-field-polo-fisico"]//div[@class="field-content"]')
+    coursetype_element = driver.find_element(By.XPATH, '(//div[@class="field-content"])[1]')
+    course_title_element = driver.find_element(By.XPATH, '//div[@class="views-field views-field-uof-intern"]//div[@class="field-content"]')
+    
+    credits_element = driver.find_element(By.XPATH, '//div[@class="views-field views-field-cfu"]//span[@class="field-content"]')
+    courseaccess_element = driver.find_element(By.XPATH, '//div[@class="views-field views-field-uof-ma1"]//div[@class="field-content"]')
+    university_address = driver.find_element(By.XPATH, '//div[@class="field--item"]')
+    
+    
+    
+# Extract the text content
+    course_name = course_name_element.text
+    course_duration = courseduration_element.text
+    courselanguage_name = courselanguage_element.text
+    courselocation = courselocation_element.text
+    coursetype = coursetype_element.text
+    coursetitle = course_title_element.text
+    
+    credit = credits_element.text
+    access_name = courseaccess_element.text
+    universityaddress = university_address.text
+
+    lines = universityaddress.split('\n')
+
+    # Print the second line
+    if len(lines) >= 2: 
+        location =  lines[1]
+    else:
+        location = "No location found"
+    # Navigate to the Programme description and other documents page
+    driver.get('https://informatica-lm.cdl.unimi.it/en/programme/programme-description-and-other-documents')
+
+    # Find the programme description element
+    description_element = driver.find_element(By.ID, 'imgplace')
+    program_description = description_element.text
+
+    # Specify the file path for the CSV file
+    csv_file_path = 'course_info2.csv'
+
+    # Write data to CSV file
+    with open(csv_file_path, 'w', newline='') as csvfile:
+        writer = csv.writer(csvfile)
+
+        # Write headers
+        writer.writerow(['Course Name', 'Course Duration', 'Course Language', 'Course Location', 'International Title','Course Type', 'Credits', 'Access', 'Program Description', 'University Location'])
+
+        # Write data to CSV file
+        writer.writerow([course_name, course_duration, courselanguage_name, courselocation, coursetitle, coursetype,  credit, access_name, program_description , location])
+
+    print(f'Data written to {csv_file_path}')
+
+except Exception as e:
+    print('An error occurred:', e)
+
+finally:
+    # Close the browser window
+    driver.quit()
+
+
